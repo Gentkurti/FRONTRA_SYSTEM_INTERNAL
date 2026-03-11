@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontra Intern System
 
-## Getting Started
+Ett internt system för Frontra för att spåra arbete, uppgifter och möten.
 
-First, run the development server:
+## Funktioner
+
+- **Inloggning** – Enkel inloggning med namn och lösenord (ingen e-post)
+- **Checklista** – Skapa uppgifter med beskrivning och deadline, markera som klara, växla mellan "Att göra" och "Klara"
+- **Arbetstidslogg** – Kalender där du loggar timmar och anteckningar per dag (svensk tid)
+- **Schema** – Kalender för möten och händelser
+
+## Teknik
+
+- **Next.js 14** (App Router)
+- **Neon** (serverlös Postgres – gratis nivå)
+- **Auth.js** (NextAuth) med credentials provider
+- **Tailwind CSS**
+- **Vercel** (deployment)
+
+## Förutsättningar
+
+- Node.js 18+
+- Ett Neon-konto (gratis)
+
+## Installation
+
+### 1. Klona och installera
+
+```bash
+npm install
+```
+
+### 2. Skapa Neon-databas
+
+1. Gå till [console.neon.tech](https://console.neon.tech) och skapa ett konto
+2. Skapa ett nytt projekt
+3. Kopiera **Connection string** (URI-format)
+
+### 3. Kör databasschemat
+
+1. Öppna **Neon SQL Editor** i ditt projekt
+2. Kör innehållet i `supabase/migrations/001_neon_schema.sql`
+
+### 4. Konfigurera miljövariabler
+
+Kopiera `.env.example` till `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+Fyll i i `.env.local`:
+
+```
+DATABASE_URL=postgresql://...  # Din Neon connection string
+NEXTAUTH_SECRET=...            # Generera med: openssl rand -base64 32
+NEXTAUTH_URL=http://localhost:3000
+```
+
+### 5. Skapa användare
+
+Kör seed-scriptet för att skapa användare. Namnet normaliseras (små bokstäver, inga mellanslag).
+
+**Alternativ A – miljövariabel:**
+
+```bash
+SEED_USERS="anna:lösenord123,john:hemligt456" npm run db:seed
+```
+
+**Alternativ B – argument:**
+
+```bash
+npm run db:seed "anna:lösenord123" "john:hemligt456"
+```
+
+**Inloggning:** Användaren anger sitt namn (t.ex. `anna` eller `Anna`) och lösenord.
+
+### 6. Starta utvecklingsservern
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Öppna [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment på Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Pusha koden till GitHub
+2. Importera projektet i [Vercel](https://vercel.com)
+3. Lägg till miljövariablerna:
+   - `DATABASE_URL` (Neon connection string)
+   - `NEXTAUTH_SECRET` (samma som lokalt)
+   - `NEXTAUTH_URL` (t.ex. `https://ditt-projekt.vercel.app`)
+4. Deploya
 
-## Learn More
+## Projektstruktur
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/
+  api/              # API-routes (tasks, work-logs, events)
+  login/            # Inloggningssida
+  checklist/        # Uppgiftschecklista
+  kalender/         # Arbetstidslogg
+  schema/           # Möten och händelser
+components/
+  ChecklistView.tsx
+  WorkCalendar.tsx
+  EventsCalendar.tsx
+  Nav.tsx
+lib/
+  auth.ts           # Auth.js-konfiguration
+  db.ts             # Neon-klient
+scripts/
+  seed.ts           # Skapa användare
+supabase/
+  migrations/       # SQL-scheman
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Licens
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Intern användning – Frontra
