@@ -14,22 +14,29 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.name || !credentials?.password) return null
 
-        const normalizedName = credentials.name.trim().toLowerCase().replace(/\s+/g, '')
-        const [user] = await sql`
-          SELECT id, name, password_hash, display_name
-          FROM users
-          WHERE name = ${normalizedName}
-        `
+        try {
+          const normalizedName = credentials.name.trim().toLowerCase().replace(/\s+/g, '')
+          const [user] = await sql`
+            SELECT id, name, password_hash, display_name
+            FROM users
+            WHERE name = ${normalizedName}
+          `
 
-        const row = user as { id: string; name: string; password_hash: string; display_name: string } | undefined
-        if (!row || !(await bcrypt.compare(credentials.password, row.password_hash))) {
+          const row = user as { id: string; name: string; password_hash: string; display_name: string } | undefined
+          if (!row?.password_hash || typeof row.password_hash !== 'string') {
+            return null
+          }
+          const match = await bcrypt.compare(credentials.password, row.password_hash)
+          if (!match) return null
+
+          return {
+            id: row.id,
+            name: row.display_name,
+            email: `${row.name}@frontra.internal`,
+          }
+        } catch (err) {
+          console.error('[auth] authorize error:', err)
           return null
-        }
-
-        return {
-          id: row.id,
-          name: row.display_name,
-          email: `${row.name}@frontra.internal`,
         }
       },
     }),
