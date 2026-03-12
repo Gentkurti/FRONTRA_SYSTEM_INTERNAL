@@ -18,11 +18,12 @@ export async function GET(request: Request) {
   }
 
   const rows = await sql`
-    SELECT id, date, hours, note
-    FROM work_logs
-    WHERE user_id = ${session.user.id}
-      AND date >= ${start}
-      AND date <= ${end}
+    SELECT wl.id, wl.date, wl.hours, wl.note, wl.user_id, u.display_name
+    FROM work_logs wl
+    JOIN users u ON u.id = wl.user_id
+    WHERE wl.date >= ${start}
+      AND wl.date <= ${end}
+    ORDER BY wl.date, u.display_name
   `
   return NextResponse.json(rows)
 }

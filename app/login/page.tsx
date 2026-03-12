@@ -39,19 +39,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--background)] px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-800">Frontra</h1>
-          <p className="text-slate-600 text-sm mt-1">Intern system</p>
+          <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">Frontra</h1>
+          <p className="text-slate-500 text-sm mt-1">Intern system</p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-lg shadow-md p-6 space-y-4"
+          className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-6 space-y-4"
         >
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="name" className="block text-sm font-medium text-slate-600 mb-1.5">
               Namn
             </label>
             <input
@@ -59,7 +59,7 @@ export default function LoginPage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400"
               placeholder="Ditt namn"
               autoComplete="username"
               disabled={loading}
@@ -67,7 +67,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-slate-600 mb-1.5">
               Lösenord
             </label>
             <input
@@ -75,7 +75,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400"
               placeholder="••••••••"
               autoComplete="current-password"
               disabled={loading}
@@ -89,7 +89,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2.5 px-4 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Loggar in...' : 'Logga in'}
           </button>

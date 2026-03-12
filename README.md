@@ -40,6 +40,8 @@ npm install
 
 1. Öppna **Neon SQL Editor** i ditt projekt
 2. Kör innehållet i `supabase/migrations/001_neon_schema.sql`
+3. Kör sedan `supabase/migrations/002_task_completion_note.sql` (för anteckning vid slutförande)
+4. Kör `supabase/migrations/003_goals_and_billed_cases.sql` (för Mål-sidan, månadsmål och fakturerade case)
 
 ### 4. Konfigurera miljövariabler
 
@@ -93,19 +95,43 @@ npm run dev
    - `NEXTAUTH_URL` (t.ex. `https://ditt-projekt.vercel.app`)
 4. Deploya
 
+## Felsökning
+
+### "Cannot find module './vendor-chunks/…' eller './XXX.js'" (500 på sidor)
+
+Next.js dev-cache (`.next`) kan bli felaktig, t.ex. efter nya paket eller många hot reloads. Webpack letar då efter chunk-filer som inte längre finns.
+
+**Lösning:** Stoppa dev-servern (Ctrl+C), rensa cache och starta igen:
+
+```bash
+npm run dev:clean
+```
+
+eller manuellt:
+
+```bash
+rm -rf .next && npm run dev
+```
+
+### Bygget lyckas men dev ger 500
+
+Samma lösning – kör `npm run dev:clean` så byggs allt om från scratch.
+
 ## Projektstruktur
 
 ```
 app/
-  api/              # API-routes (tasks, work-logs, events)
+  api/              # API-routes (tasks, work-logs, events, goals, billed-cases)
   login/            # Inloggningssida
   checklist/        # Uppgiftschecklista
   kalender/         # Arbetstidslogg
   schema/           # Möten och händelser
+  mal/              # Mål – månadsmål och fakturerade case
 components/
   ChecklistView.tsx
   WorkCalendar.tsx
   EventsCalendar.tsx
+  MalView.tsx
   Nav.tsx
 lib/
   auth.ts           # Auth.js-konfiguration

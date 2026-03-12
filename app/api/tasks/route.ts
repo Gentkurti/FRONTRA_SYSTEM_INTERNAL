@@ -10,9 +10,10 @@ export async function GET() {
   }
 
   const rows = await sql`
-    SELECT id, description, deadline, is_done, created_by, created_at
-    FROM tasks
-    ORDER BY created_at DESC
+    SELECT t.id, t.description, t.deadline, t.is_done, t.completion_note, t.created_by, t.created_at, u.display_name as created_by_name
+    FROM tasks t
+    LEFT JOIN users u ON u.id = t.created_by
+    ORDER BY t.created_at DESC
   `
   return NextResponse.json(rows)
 }

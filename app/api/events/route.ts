@@ -18,11 +18,12 @@ export async function GET(request: Request) {
   }
 
   const rows = await sql`
-    SELECT id, title, description, start_at, end_at, created_at
-    FROM events
-    WHERE start_at <= ${end}
-      AND end_at >= ${start}
-    ORDER BY start_at ASC
+    SELECT e.id, e.title, e.description, e.start_at, e.end_at, e.created_at, u.display_name as created_by_name
+    FROM events e
+    LEFT JOIN users u ON u.id = e.created_by
+    WHERE e.start_at <= ${end}
+      AND e.end_at >= ${start}
+    ORDER BY e.start_at ASC
   `
   return NextResponse.json(rows)
 }

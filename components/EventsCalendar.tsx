@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from 'react'
 
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { DateTimePickerEvent } from '@/components/ui/date-time-picker-event'
+
 type Event = {
   id: string
   title: string
@@ -9,6 +13,7 @@ type Event = {
   start_at: string
   end_at: string
   created_at: string
+  created_by_name?: string | null
 }
 
 function getMonthDates(year: number, month: number) {
@@ -32,6 +37,14 @@ function toDateString(d: Date) {
 
 function isSameDay(a: string, b: string) {
   return a.slice(0, 10) === b.slice(0, 10)
+}
+
+/** Visar alltid starttiden (start_at), inte sluttiden. */
+function formatStartTime(isoString: string) {
+  return new Date(isoString).toLocaleTimeString('sv-SE', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 export function EventsCalendar() {
@@ -157,35 +170,24 @@ export function EventsCalendar() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-semibold text-foreground">
           {monthNames[current.month]} {current.year}
         </h2>
         <div className="flex gap-2">
-          <button
-            onClick={() => openNewForm()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Lägg till möte/händelse
-          </button>
-          <button
-            onClick={prevMonth}
-            className="px-3 py-1 border border-slate-300 rounded-md hover:bg-slate-50"
-          >
+          <Button onClick={() => openNewForm()}>Lägg till möte/händelse</Button>
+          <Button variant="outline" size="sm" onClick={prevMonth}>
             Föregående
-          </button>
-          <button
-            onClick={nextMonth}
-            className="px-3 py-1 border border-slate-300 rounded-md hover:bg-slate-50"
-          >
+          </Button>
+          <Button variant="outline" size="sm" onClick={nextMonth}>
             Nästa
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-sm font-medium text-slate-600 mb-2">
-        {['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'].map((d) => (
-          <div key={d}>{d}</div>
+      <div className="mb-2 grid grid-cols-7 gap-1 text-center text-sm font-medium text-muted-foreground">
+        {['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'].map((day) => (
+          <div key={day}>{day}</div>
         ))}
       </div>
 
@@ -197,119 +199,115 @@ export function EventsCalendar() {
           const isToday = toDateString(new Date()) === dateStr
 
           return (
-            <div
+            <Card
               key={dateStr}
-              className={`min-h-[100px] p-2 rounded-lg border ${
+              className={`min-h-[100px] p-2 ${
                 isThisMonth
-                  ? 'bg-white border-slate-200'
-                  : 'bg-slate-50 border-slate-100 text-slate-400'
-              } ${isToday ? 'ring-2 ring-blue-400' : ''}`}
+                  ? 'border-border bg-card'
+                  : 'border-border/50 bg-muted/50 text-muted-foreground'
+              } ${isToday ? 'ring-2 ring-primary' : ''}`}
             >
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">{d.getDate()}</span>
-                <button
-                  onClick={() => openNewForm(dateStr)}
-                  className="text-slate-400 hover:text-blue-600 text-xs"
-                >
-                  +
-                </button>
-              </div>
-              <div className="mt-1 space-y-1">
-                {dayEvents.map((ev) => (
-                  <button
-                    key={ev.id}
-                    onClick={() => openEditForm(ev)}
-                    className="block w-full text-left text-xs px-2 py-1 rounded bg-blue-100 text-blue-800 truncate hover:bg-blue-200"
-                    title={ev.title}
+              <CardContent className="p-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">{d.getDate()}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-muted-foreground hover:text-primary"
+                    onClick={() => openNewForm(dateStr)}
                   >
-                    {new Date(ev.start_at).toLocaleTimeString('sv-SE', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}{' '}
-                    {ev.title}
-                  </button>
-                ))}
-              </div>
-            </div>
+                    +
+                  </Button>
+                </div>
+                <div className="mt-1 space-y-1">
+                  {dayEvents.map((ev) => (
+                    <button
+                      key={ev.id}
+                      type="button"
+                      onClick={() => openEditForm(ev)}
+                      className="block w-full truncate rounded bg-primary/10 px-2 py-1 text-left text-xs text-primary hover:bg-primary/20"
+                      title={ev.created_by_name ? `${ev.title} (${ev.created_by_name})` : ev.title}
+                    >
+                      {formatStartTime(ev.start_at)}{' '}
+                      {ev.title}
+                      {ev.created_by_name && (
+                        <span className="opacity-80"> · {ev.created_by_name}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           )
         })}
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div
-            className="bg-white rounded-lg p-6 max-w-md w-full space-y-4"
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
+          <Card
+            className="w-full max-w-lg my-auto flex max-h-[90vh] flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-semibold text-slate-800">
-              {editingId ? 'Redigera händelse' : 'Lägg till händelse'}
-            </h3>
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">Titel</label>
-              <input
-                type="text"
-                value={formTitle}
-                onChange={(e) => setFormTitle(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                placeholder="T.ex. Möte med kund"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-slate-600 mb-1">Beskrivning</label>
-              <textarea
-                value={formDesc}
-                onChange={(e) => setFormDesc(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md"
-                rows={2}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-slate-600 mb-1">Start</label>
+            <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-6">
+              <h3 className="font-semibold text-foreground shrink-0">
+                {editingId ? 'Redigera händelse' : 'Lägg till händelse'}
+              </h3>
+              <div className="shrink-0">
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  Titel
+                </label>
                 <input
-                  type="datetime-local"
-                  value={formStart}
-                  onChange={(e) => setFormStart(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                  type="text"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  className="w-full rounded-lg border border-input bg-card px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="T.ex. Möte med kund"
                 />
               </div>
-              <div>
-                <label className="block text-sm text-slate-600 mb-1">Slut</label>
-                <input
-                  type="datetime-local"
-                  value={formEnd}
-                  onChange={(e) => setFormEnd(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md"
+              <div className="shrink-0">
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  Beskrivning
+                </label>
+                <textarea
+                  value={formDesc}
+                  onChange={(e) => setFormDesc(e.target.value)}
+                  className="w-full rounded-lg border border-input bg-card px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+                  rows={2}
                 />
               </div>
-            </div>
-            <div className="flex gap-2 justify-between">
-              <div>
-                {editingId && (
-                  <button
-                    onClick={() => deleteEvent(editingId)}
-                    className="text-red-600 hover:text-red-700 text-sm"
-                  >
-                    Ta bort
-                  </button>
-                )}
+              <div className="min-h-0 shrink-0">
+                <label className="mb-2 block text-sm font-medium text-muted-foreground">
+                  Datum och tid
+                </label>
+                <DateTimePickerEvent
+                  startAt={formStart}
+                  endAt={formEnd}
+                  onStartChange={setFormStart}
+                  onEndChange={setFormEnd}
+                />
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={closeForm}
-                  className="px-4 py-2 border border-slate-300 rounded-md hover:bg-slate-50"
-                >
-                  Avbryt
-                </button>
-                <button
-                  onClick={saveEvent}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  Spara
-                </button>
+              <div className="flex shrink-0 justify-between gap-2 border-t border-border pt-4">
+                <div>
+                  {editingId && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => deleteEvent(editingId)}
+                    >
+                      Ta bort
+                    </Button>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={closeForm}>
+                    Avbryt
+                  </Button>
+                  <Button onClick={saveEvent}>Spara</Button>
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

@@ -14,11 +14,11 @@ export async function PATCH(
 
   const { id } = await params
   const body = await request.json()
-  const { is_done } = body
+  const { is_done, completion_note } = body
 
   await sql`
     UPDATE tasks
-    SET is_done = ${is_done}
+    SET is_done = ${is_done}, completion_note = ${completion_note ?? null}
     WHERE id = ${id}
   `
   return NextResponse.json({ ok: true })
