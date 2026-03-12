@@ -21,14 +21,15 @@ export const authOptions: NextAuthOptions = {
           WHERE name = ${normalizedName}
         `
 
-        if (!user || !(await bcrypt.compare(credentials.password, user.password_hash))) {
+        const row = user as { id: string; name: string; password_hash: string; display_name: string } | undefined
+        if (!row || !(await bcrypt.compare(credentials.password, row.password_hash))) {
           return null
         }
 
         return {
-          id: user.id,
-          name: user.display_name,
-          email: `${user.name}@frontra.internal`,
+          id: row.id,
+          name: row.display_name,
+          email: `${row.name}@frontra.internal`,
         }
       },
     }),

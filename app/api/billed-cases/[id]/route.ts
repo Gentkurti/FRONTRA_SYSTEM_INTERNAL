@@ -20,9 +20,10 @@ export async function PATCH(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
+  const existingRow = existing as { description: string; amount_kr: number }
   const body = await request.json()
-  const description = body.description !== undefined ? String(body.description).trim() : existing.description
-  const amount_kr = body.amount_kr !== undefined ? parseInt(body.amount_kr ?? '0', 10) : existing.amount_kr
+  const description = body.description !== undefined ? String(body.description).trim() : existingRow.description
+  const amount_kr = body.amount_kr !== undefined ? parseInt(body.amount_kr ?? '0', 10) : existingRow.amount_kr
   if (isNaN(amount_kr) || amount_kr < 0) {
     return NextResponse.json({ error: 'amount_kr must be a non-negative number' }, { status: 400 })
   }
