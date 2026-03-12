@@ -7,7 +7,7 @@
  */
 
 import { neon } from '@neondatabase/serverless'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { config } from 'dotenv'
 
 config({ path: '.env.local' })
@@ -31,7 +31,7 @@ async function seed() {
     }
 
     const normalizedName = name.trim().toLowerCase().replace(/\s+/g, '')
-    const passwordHash = await bcrypt.hash(password, 10)
+    const passwordHash = bcrypt.hashSync(password, 10)
 
     try {
       await sql`
