@@ -20,9 +20,9 @@ function Calendar({
   const customClassNames = {
     months: "relative flex flex-col sm:flex-row gap-4",
     month: "w-full",
-    month_caption: "relative mb-1 flex h-9 items-center justify-center px-10",
+    month_caption: "relative mb-1 flex h-9 items-center justify-center px-10 z-0",
     caption_label: "text-sm font-medium",
-    nav: "absolute left-0 right-0 top-0 flex justify-between px-0",
+    nav: "absolute left-0 right-0 top-0 z-20 flex justify-between px-0 pointer-events-none [&>button]:pointer-events-auto",
     button_previous: cn(
       buttonVariants({ variant: "ghost" }),
       "size-9 text-muted-foreground/80 hover:text-foreground p-0 shrink-0",
@@ -56,11 +56,17 @@ function Calendar({
     },
     // type="button" så att klick på en dag inte submitar formulär (default i form är submit)
     DayButton: (props: React.ButtonHTMLAttributes<HTMLButtonElement> & { day?: unknown; modifiers?: unknown }) => {
-      // day + modifiers come from library; we only spread button props (type="button" prevents form submit)
       const { day, modifiers, ...buttonProps } = props
       void [day, modifiers]
       return <button type="button" {...buttonProps} />
     },
+    // type="button" så att månadsnavigering inte submitar formulär och knapparna är klickbara
+    PreviousMonthButton: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+      <button type="button" {...props} />
+    ),
+    NextMonthButton: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+      <button type="button" {...props} />
+    ),
   }
 
   const mergedComponents = {
